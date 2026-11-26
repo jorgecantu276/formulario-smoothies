@@ -23,6 +23,11 @@ no equivalen a conteos físicos del negocio.
 
 ## Cambios y publicación
 
+Para comprobar cambios, usa Node 24 y ejecuta `npm ci` y `npm test`. Las pruebas
+abren el formulario real con datos ficticios y comprueban nombres de caja,
+duplicados de insumos/extras, recuperación y corrección de borradores. npm solo
+aporta herramientas de prueba; la web sigue siendo un HTML estático sin backend.
+
 `index.html` es la aplicación. Mantener el sitio simple: no añadir backend,
 cuentas o dependencias sin una necesidad confirmada. Preservar URL pública,
 guardado local y contrato de exportación/importación versión 1. Probar con datos

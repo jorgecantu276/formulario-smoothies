@@ -26,6 +26,16 @@ then deliberately sends one JSON file to the owner for review/import into POS.
 
 ## Progress and next steps
 
+The November 25 integration review found that distinct form rows could produce
+the same cashier name, and duplicate inventory names could pass sharing but be
+rejected by the POS. Add/edit and sharing now reuse one normalized identity rule
+matching the importer. Existing drafts remain editable, including multiple
+conflicts that must be corrected one at a time. Form tests cover those cases and
+CI runs them without publishing the site. Independent review repeated a roundtrip
+against the actual POS parser. Client JSON/menu approval remains pending.
+These are candidate-source corrections; publishing the updated public site is a
+separate reviewed action, and existing qualified previews retain their own bytes.
+
 The form replaced the originally requested Excel after the owner identified
 fragile name-based relationships and repeated extras. Historical browser checks
 covered saved drafts, mobile layout, palette changes and importable exports. The

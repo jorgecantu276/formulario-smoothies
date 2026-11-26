@@ -117,8 +117,13 @@ const form=k=>$(k+'-form');
 const editButtons=k=>form(k).querySelectorAll('button');
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 const label=p=>p.name+(p.size==='Único'?'':' · '+p.size);
-const normalized=s=>s.trim().normalize('NFC').toLocaleLowerCase('es-MX');
-const productKey=p=>JSON.stringify([normalized(p.name),normalized(p.size)]);
+const normalized=s=>s.normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase('es-MX');
+function recordConflict(kind,rows,candidate){
+ const identity=r=>kind==='menu'?normalized(normalized(r.size)==='único'?r.name:r.name+' '+r.size):normalized(r.name);
+ const conflict=candidate?rows.some(r=>r.id!==candidate.id&&identity(r)===identity(candidate)):new Set(rows.map(identity)).size!==rows.length;
+ if(!conflict)return '';
+ return {menu:'Dos presentaciones quedarían con el mismo nombre en caja. Distingue sus nombres o tamaños.',stock:'Hay insumos con el mismo nombre. Distingue las presentaciones.',extras:'Ese extra ya existe. Edítalo para cambiar su precio o los productos asignados.'}[kind];
+}
 const uid=()=>globalThis.crypto?.randomUUID?.()??Array.from(crypto.getRandomValues(new Uint32Array(4)),n=>n.toString(16).padStart(8,'0')).join('');
 const hasDraft=k=>Boolean(current[k]||[...form(k).querySelectorAll('input')].some(i=>i.type==='radio'||i.type==='checkbox'?i.checked:i.value.trim()));
 const unfinished=()=>tabs.some(hasDraft);
@@ -159,7 +164,7 @@ function parseCopy(raw){
    result[k].push(r);
   }
  }
- if(new Set(result.menu.map(productKey)).size!==result.menu.length||new Set(result.extras.map(r=>normalized(r.name))).size!==result.extras.length)throw Error('La copia tiene productos o extras repetidos.');
+ // Existing drafts remain editable even when names need correction before export.
  if(obj.palette!==undefined){
   for(const group of paletteKeys){
    const value=obj.palette?.[group];
@@ -367,7 +372,6 @@ for(const k of tabs)form(k).addEventListener('submit',event=>{
  if(!r.name||(k==='stock'&&!r.unit)){message('Completa el nombre y los campos obligatorios.',true);return;}
  if(k==='menu'){
   r.size ||= 'Único';r.price=Number(read('price'));
-  if(state.menu.some(p=>p.id!==r.id&&productKey(p)===productKey(r))){message('Ese producto y tamaño ya están en el menú. Edítalos en la lista.',true);return;}
  }
  if(k==='stock'){
   r.quantity=read('quantity')===''?null:Number(read('quantity'));
@@ -377,9 +381,10 @@ for(const k of tabs)form(k).addEventListener('submit',event=>{
  if(k==='extras'){
   r.price=Number(read('price'));r.scope=read('scope');r.productIds=r.scope==='selected'?checked():[];
   if(r.scope==='selected'&&!r.productIds.length){message('Selecciona al menos un producto o elige todos.',true);return;}
-  if(state.extras.some(e=>e.id!==r.id&&normalized(e.name)===normalized(r.name))){message('Ese extra ya existe. Edítalo para cambiar su precio o los productos asignados.',true);return;}
  }
  const at=state[k].findIndex(row=>row.id===r.id);
+ const conflict=recordConflict(k,state[k],r);
+ if(conflict){message(conflict,true);return;}
  if(at<0&&state[k].length===500){message('Se alcanzó el máximo de 500 registros en esta sección.',true);return;}
  if(at<0)state[k].push(r);else state[k][at]=r;
  reset(k);render();message(at<0?'Registro agregado.':'Cambios guardados.');save();
@@ -418,6 +423,7 @@ function saveFile(blob,name){
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function readyToShare(){
+ for(const kind of tabs){const conflict=recordConflict(kind,state[kind]);if(conflict){message(conflict,true);return false;}}
  if(!state.menu.length||state.extras.some(e=>e.scope==='selected'&&!e.productIds.length)){
   message('Agrega un producto y asigna todos los extras antes de compartir.',true);return false;
  }
