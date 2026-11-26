@@ -1,7 +1,11 @@
-# Smoothies intake — product and progress
+# POS Smoothies — menu intake component
 
-Reconstructed 2026-11-25. This companion belongs with the separate
-`jorgecantu276/formulario-smoothies` repository; it is maintained here alongside the intake source. It is not another POS database.
+Reconstructed 2026-11-25. This is a setup component of the single POS Smoothies
+product for the chef student. Its separate `jorgecantu276/formulario-smoothies`
+repository serves the public form; the family folder groups it at
+`smoothies/intake`, alongside `smoothies/app`. The POS runs on the PC and she
+operates its session from her iPad over the same local network. The separate
+hosting repository does not establish another product or POS database.
 
 ## Business outcome
 

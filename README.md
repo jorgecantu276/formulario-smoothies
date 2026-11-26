@@ -1,5 +1,11 @@
 # Formulario de Smoothies
 
+Componente de captura del único producto **POS Smoothies** para la estudiante de
+chef. El POS vive en una PC y ella lo opera desde su iPad en la misma red local.
+En la carpeta de familia, `smoothies/app` y `smoothies/intake` reúnen ambos
+componentes. Este repositorio conserva la publicación web y los borradores del
+formulario; no representa otro POS ni otra clienta.
+
 Formulario estático para preparar menú, tamaños, extras, paleta e inventario
 previsto. La clienta completa la información en su teléfono/iPad y comparte
 `menu-smoothies.json` para revisión e importación en el POS.
